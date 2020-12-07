@@ -103,50 +103,72 @@ namespace AdventOfCode2020
 
         public static void Part2()
         {
-            bool[] answers = new bool[26];
-            for (int i = 0; i < answers.Length; i++) answers[i] = true;
-            List<bool[]> groupAnswers = new List<bool[]>();
-            using (var sr = new StreamReader("Day6_Input.txt"))
+            List<string> colors = new List<string>();
+            List<int[]> rules = new List<int[]>();
+            using (var sr = new StreamReader("Day7_Input.txt"))
             {
-                UInt64 sum = 0;
                 string line;
-                bool[] tempAnswers = new bool[26];
                 while ((line = sr.ReadLine()) != null)
                 {
-                    if (line == "")
+                    string[] splitLine = line.Split(" ");
+                    string outerColor = splitLine[0] + " " + splitLine[1];
+                    if (!colors.Contains(outerColor) && outerColor != "other bags.") colors.Add(outerColor);
+
+                    int[] tempRule = new int[((splitLine.Length - 4) / 4) + 1];
+                    tempRule[0] = colors.IndexOf(outerColor);
+                    for (int i = 4; i < splitLine.Length; i++)
                     {
-                        foreach (bool[] ba in groupAnswers)
+                        if (i % 4 == 0)
                         {
-                            for (int i = 0; i < ba.Length; i++)
+                            // Ignore this for now, it's the number of inner bags
+                        }
+                        if (i % 4 == 1)
+                        {
+                            string innerColor = splitLine[i] + " " + splitLine[i + 1];
+                            if (!colors.Contains(innerColor) && innerColor != "other bags.") colors.Add(innerColor);
+                            if (innerColor != "other bags.") tempRule[((i - 5) / 4) + 1] = colors.IndexOf(innerColor);
+                        }
+                        if (i % 4 == 2)
+                        {
+                            // Do nothing, already handled
+                        }
+                        if (i % 4 == 3)
+                        {
+                            // Do nothing, this is either "bag" or "bags"
+                        }
+                    }
+                    rules.Add(tempRule);
+                }
+
+                // Find top-level "shiny gold rule"
+                int goldenColor = colors.IndexOf("shiny gold");
+                UInt64 bagCount = 0;
+                List<int[]> nextRules = new List<int[]>();
+                for (int i = 0; i < rules.Count; i++)
+                {
+                    if (rules[i][0] == goldenColor)
+                    {
+                        nextRules.Add(new int[] {i, 1});
+                    }
+                }
+
+                while (nextRules.Count != 0)
+                {
+                    List<int[]> tempNextRules = new List<int[]>();
+                    for (int i = 0; i < nextRules.Count; i++)
+                    {
+                        for (int j = 0; j < rules.Count; j++)
+                        {
+                            if (nextRules[i][0] == rules[j][0])
                             {
-                                answers[i] &= ba[i];
+                                for (int k = 1; k < rules[j].Length; k++)
+                                {
+                                    tempNextRules.Add(new int[] { rules[j][k], /*Need a number of bags here*/ });
+                                }
                             }
                         }
-                        foreach (bool b in answers) if (b) sum++;
-                        groupAnswers = new List<bool[]>();
-                        answers = new bool[26];
-                        for (int i = 0; i < answers.Length; i++) answers[i] = true;
-                    }
-                    else
-                    {
-                        foreach (char c in line)
-                        {
-                            tempAnswers[c - 97] = true;
-                        }
-                        groupAnswers.Add(tempAnswers);
-                        tempAnswers = new bool[26];
                     }
                 }
-                foreach (bool[] ba in groupAnswers)
-                {
-                    for (int i = 0; i < ba.Length; i++)
-                    {
-                        answers[i] &= ba[i];
-                    }
-                }
-                foreach (bool b in answers) if (b) sum++;
-
-                Console.WriteLine(sum);
             }
             Console.ReadKey();
         }
