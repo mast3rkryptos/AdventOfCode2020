@@ -8,6 +8,28 @@ namespace AdventOfCode2020
 {
     public static class Day7
     {
+        public static int CountBags(ref List<int[]> rules, int color)
+        {
+            int innerBags = 0;
+            for (int i = 0; i < rules.Count; i++)
+            {
+                if (rules[i][0] == color && rules[i][1] == 0)
+                {
+                    return 0;
+                }
+                else if (rules[i][0] == color)
+                {
+                    for (int j = 1; j < rules[i].Length; j += 2)
+                    {
+                        for (int k = 0; k < rules[i][j]; k++)
+                        innerBags += CountBags(ref rules, rules[i][j + 1]) + 1;
+                    }
+                }
+            }
+
+            return innerBags;
+        }
+
         public static void Part1()
         {
             List<string> colors = new List<string>();
@@ -114,61 +136,26 @@ namespace AdventOfCode2020
                     string outerColor = splitLine[0] + " " + splitLine[1];
                     if (!colors.Contains(outerColor) && outerColor != "other bags.") colors.Add(outerColor);
 
-                    int[] tempRule = new int[((splitLine.Length - 4) / 4) + 1];
+                    int[] tempRule = new int[(splitLine.Length / 2) - 1];
                     tempRule[0] = colors.IndexOf(outerColor);
                     for (int i = 4; i < splitLine.Length; i++)
                     {
                         if (i % 4 == 0)
                         {
                             // Ignore this for now, it's the number of inner bags
-                        }
-                        if (i % 4 == 1)
-                        {
-                            string innerColor = splitLine[i] + " " + splitLine[i + 1];
+                            string innerColor = splitLine[i + 1] + " " + splitLine[i + 2];
                             if (!colors.Contains(innerColor) && innerColor != "other bags.") colors.Add(innerColor);
-                            if (innerColor != "other bags.") tempRule[((i - 5) / 4) + 1] = colors.IndexOf(innerColor);
-                        }
-                        if (i % 4 == 2)
-                        {
-                            // Do nothing, already handled
-                        }
-                        if (i % 4 == 3)
-                        {
-                            // Do nothing, this is either "bag" or "bags"
+                            if (innerColor != "other bags.")
+                            {
+                                tempRule[(i / 2) - 1] = Convert.ToInt32(splitLine[i]);
+                                tempRule[i / 2] = colors.IndexOf(innerColor);
+                            }
                         }
                     }
                     rules.Add(tempRule);
                 }
 
-                // Find top-level "shiny gold rule"
-                int goldenColor = colors.IndexOf("shiny gold");
-                UInt64 bagCount = 0;
-                List<int[]> nextRules = new List<int[]>();
-                for (int i = 0; i < rules.Count; i++)
-                {
-                    if (rules[i][0] == goldenColor)
-                    {
-                        nextRules.Add(new int[] {i, 1});
-                    }
-                }
-
-                while (nextRules.Count != 0)
-                {
-                    List<int[]> tempNextRules = new List<int[]>();
-                    for (int i = 0; i < nextRules.Count; i++)
-                    {
-                        for (int j = 0; j < rules.Count; j++)
-                        {
-                            if (nextRules[i][0] == rules[j][0])
-                            {
-                                for (int k = 1; k < rules[j].Length; k++)
-                                {
-                                    tempNextRules.Add(new int[] { rules[j][k], /*Need a number of bags here*/ });
-                                }
-                            }
-                        }
-                    }
-                }
+                Console.WriteLine(CountBags(ref rules, colors.IndexOf("shiny gold")));
             }
             Console.ReadKey();
         }
