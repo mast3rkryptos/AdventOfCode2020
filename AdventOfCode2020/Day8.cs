@@ -122,12 +122,14 @@ namespace AdventOfCode2020
                 if (program[i][0] == 1)
                 {
                     program[i][0] = 2;
-                    if (!RunProgram(program)) program[i][0] = 1;
+                    RunProgram(program);
+                    program[i][0] = 1;
                 }
                 else if (program[i][0] == 2)
                 {
                     program[i][0] = 1;
-                    if (!RunProgram(program)) program[i][0] = 2;
+                    RunProgram(program);
+                    program[i][0] = 2;
                 }
             }
             Console.ReadKey();
