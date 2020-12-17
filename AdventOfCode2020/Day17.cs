@@ -11,7 +11,7 @@ namespace AdventOfCode2020
 
     public static class Day17
     {
-        private static int[] MakeCoordIntArray(string input)
+        private static int[] MakeCoordIntArray3D(string input)
         {
             int[] retVal = new int[3];
             string[] splitInput = input.Split(',');
@@ -21,12 +21,12 @@ namespace AdventOfCode2020
             return retVal;
         }
 
-        private static string MakeCoordString(int[] input)
+        private static string MakeCoordString3D(int[] input)
         {
             return input[0] + "," + input[1] + "," + input[2];
         }
 
-        private static string MakeCoordString(int z, int y, int x)
+        private static string MakeCoordString3D(int z, int y, int x)
         {
             return z + "," + y + "," + x;
         }
@@ -37,7 +37,7 @@ namespace AdventOfCode2020
             int minx = int.MaxValue, maxx = int.MinValue, miny = int.MaxValue, maxy = int.MinValue, minz = int.MaxValue, maxz = int.MinValue;
             foreach (string s in input)
             {
-                int[] ia = MakeCoordIntArray(s);
+                int[] ia = MakeCoordIntArray3D(s);
                 if (ia[0] < minz) minz = ia[0];
                 if (ia[0] > maxz) maxz = ia[0];
 
@@ -55,7 +55,7 @@ namespace AdventOfCode2020
                 {
                     for (int x = minx; x <= maxx; x++)
                     {
-                        if (input.Contains(MakeCoordString(z, y, x))) Console.Write("#");
+                        if (input.Contains(MakeCoordString3D(z, y, x))) Console.Write("#");
                         else Console.Write(".");
                     }
                     Console.WriteLine();
@@ -64,7 +64,7 @@ namespace AdventOfCode2020
             }
         }
 
-        private static List<string> RunCycle(List<string> currentState)
+        private static List<string> RunCycle3D(List<string> currentState)
         {
             List<string> nextState = new List<string>();
 
@@ -74,7 +74,7 @@ namespace AdventOfCode2020
             int activeNeighborCount = 0;
             foreach (string s in currentState)
             {
-                coordInt = MakeCoordIntArray(s);
+                coordInt = MakeCoordIntArray3D(s);
                 activeNeighborCount = 0;
                 for (int z = coordInt[0] - 1; z <= coordInt[0] + 1; z++)
                 {
@@ -82,7 +82,7 @@ namespace AdventOfCode2020
                     {
                         for (int x = coordInt[2] - 1; x <= coordInt[2] + 1; x++)
                         {
-                            coordString = MakeCoordString(z, y, x);
+                            coordString = MakeCoordString3D(z, y, x);
                             if (s == coordString) continue;
                             else
                             {
@@ -99,7 +99,7 @@ namespace AdventOfCode2020
             int minx = int.MaxValue, maxx = int.MinValue, miny = int.MaxValue, maxy = int.MinValue, minz = int.MaxValue, maxz = int.MinValue;
             foreach (string s in currentState)
             {
-                int[] ia = MakeCoordIntArray(s);
+                int[] ia = MakeCoordIntArray3D(s);
                 if (ia[0] < minz) minz = ia[0];
                 if (ia[0] > maxz) maxz = ia[0];
 
@@ -122,7 +122,7 @@ namespace AdventOfCode2020
                 {
                     for (int x = minx; x <= maxx; x++)
                     {
-                        coordInt = MakeCoordIntArray(MakeCoordString(z, y, x));
+                        coordInt = MakeCoordIntArray3D(MakeCoordString3D(z, y, x));
                         activeNeighborCount = 0;
                         for (int nz = coordInt[0] - 1; nz <= coordInt[0] + 1; nz++)
                         {
@@ -130,8 +130,8 @@ namespace AdventOfCode2020
                             {
                                 for (int nx = coordInt[2] - 1; nx <= coordInt[2] + 1; nx++)
                                 {
-                                    coordString = MakeCoordString(nz, ny, nx);
-                                    if (coordString == MakeCoordString(z, y, x)) continue;
+                                    coordString = MakeCoordString3D(nz, ny, nx);
+                                    if (coordString == MakeCoordString3D(z, y, x)) continue;
                                     else
                                     {
                                         if (currentState.Contains(coordString)) activeNeighborCount++;
@@ -139,7 +139,7 @@ namespace AdventOfCode2020
                                 }
                             }
                         }
-                        if (activeNeighborCount == 3) nextState.Add(MakeCoordString(z, y, x));
+                        if (activeNeighborCount == 3) nextState.Add(MakeCoordString3D(z, y, x));
                     }
                 }
             }
@@ -159,7 +159,7 @@ namespace AdventOfCode2020
                     foreach (char c in line)
                     {
                         if (c == '#')
-                            activeCubes.Add(MakeCoordString(z, y, x));
+                            activeCubes.Add(MakeCoordString3D(z, y, x));
                         x++;
                     }
                     y--;
@@ -169,7 +169,7 @@ namespace AdventOfCode2020
             for (int i = 1; i <= 6; i++)
             {
                 Console.WriteLine("After {0} cycles:", i);
-                activeCubes = RunCycle(activeCubes);
+                activeCubes = RunCycle3D(activeCubes);
                 Print3D(activeCubes);
 
             }
@@ -180,7 +180,34 @@ namespace AdventOfCode2020
 
         public static void Part2()
         {
+            List<string> activeCubes = new List<string>();
+            using (var sr = new StreamReader("Day17_Input.txt"))
+            {
+                string line;
+                int x = 0, y = 0, z = 0;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    x = 0;
+                    foreach (char c in line)
+                    {
+                        if (c == '#')
+                            activeCubes.Add(MakeCoordString3D(z, y, x));
+                        x++;
+                    }
+                    y--;
+                }
+            }
+            Print3D(activeCubes);
+            for (int i = 1; i <= 6; i++)
+            {
+                Console.WriteLine("After {0} cycles:", i);
+                activeCubes = RunCycle3D(activeCubes);
+                Print3D(activeCubes);
 
+            }
+            Console.WriteLine("Active Cubes: {0}", activeCubes.Distinct().ToList().Count);
+
+            Console.ReadKey();
         }
     }
 }
