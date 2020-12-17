@@ -237,7 +237,7 @@ namespace AdventOfCode2020
             }
         }
 
-        /*private static List<string> RunCycle4D(List<string> currentState)
+        private static List<string> RunCycle4D(List<string> currentState)
         {
             List<string> nextState = new List<string>();
 
@@ -247,19 +247,22 @@ namespace AdventOfCode2020
             int activeNeighborCount = 0;
             foreach (string s in currentState)
             {
-                coordInt = MakeCoordIntArray3D(s);
+                coordInt = MakeCoordIntArray4D(s);
                 activeNeighborCount = 0;
-                for (int z = coordInt[0] - 1; z <= coordInt[0] + 1; z++)
+                for (int w = coordInt[0] - 1; w <= coordInt[0] + 1; w++)
                 {
-                    for (int y = coordInt[1] - 1; y <= coordInt[1] + 1; y++)
+                    for (int z = coordInt[1] - 1; z <= coordInt[1] + 1; z++)
                     {
-                        for (int x = coordInt[2] - 1; x <= coordInt[2] + 1; x++)
+                        for (int y = coordInt[2] - 1; y <= coordInt[2] + 1; y++)
                         {
-                            coordString = MakeCoordString3D(z, y, x);
-                            if (s == coordString) continue;
-                            else
+                            for (int x = coordInt[3] - 1; x <= coordInt[3] + 1; x++)
                             {
-                                if (currentState.Contains(coordString)) activeNeighborCount++;
+                                coordString = MakeCoordString4D(w, z, y, x);
+                                if (s == coordString) continue;
+                                else
+                                {
+                                    if (currentState.Contains(coordString)) activeNeighborCount++;
+                                }
                             }
                         }
                     }
@@ -269,19 +272,24 @@ namespace AdventOfCode2020
 
             // Check inactive cubes
             // Find min and max in each dimension (adding/subtracting 1 from each dimension to account for surrounding inactive cubes)
-            int minx = int.MaxValue, maxx = int.MinValue, miny = int.MaxValue, maxy = int.MinValue, minz = int.MaxValue, maxz = int.MinValue;
+            int minx = int.MaxValue, maxx = int.MinValue, miny = int.MaxValue, maxy = int.MinValue, minz = int.MaxValue, maxz = int.MinValue, minw = int.MaxValue, maxw = int.MinValue;
             foreach (string s in currentState)
             {
-                int[] ia = MakeCoordIntArray3D(s);
-                if (ia[0] < minz) minz = ia[0];
-                if (ia[0] > maxz) maxz = ia[0];
+                int[] ia = MakeCoordIntArray4D(s);
+                if (ia[0] < minw) minw = ia[0];
+                if (ia[0] > maxw) maxw = ia[0];
 
-                if (ia[1] < miny) miny = ia[1];
-                if (ia[1] > maxy) maxy = ia[1];
+                if (ia[1] < minz) minz = ia[1];
+                if (ia[1] > maxz) maxz = ia[1];
 
-                if (ia[2] < minx) minx = ia[2];
-                if (ia[2] > maxx) maxx = ia[2];
+                if (ia[2] < miny) miny = ia[2];
+                if (ia[2] > maxy) maxy = ia[2];
+
+                if (ia[3] < minx) minx = ia[3];
+                if (ia[3] > maxx) maxx = ia[3];
             }
+            minw--;
+            maxw++;
             minz--;
             maxz++;
             miny--;
@@ -289,36 +297,41 @@ namespace AdventOfCode2020
             minx--;
             maxx++;
 
-            for (int z = minz; z <= maxz; z++)
+            for (int w = minw; w <= maxw; w++)
             {
-                for (int y = miny; y <= maxy; y++)
+                for (int z = minz; z <= maxz; z++)
                 {
-                    for (int x = minx; x <= maxx; x++)
+                    for (int y = miny; y <= maxy; y++)
                     {
-                        coordInt = MakeCoordIntArray3D(MakeCoordString3D(z, y, x));
-                        activeNeighborCount = 0;
-                        for (int nz = coordInt[0] - 1; nz <= coordInt[0] + 1; nz++)
+                        for (int x = minx; x <= maxx; x++)
                         {
-                            for (int ny = coordInt[1] - 1; ny <= coordInt[1] + 1; ny++)
+                            coordInt = MakeCoordIntArray4D(MakeCoordString4D(w, z, y, x));
+                            activeNeighborCount = 0;
+                            for (int nw = coordInt[0] - 1; nw <= coordInt[0] + 1; nw++)
                             {
-                                for (int nx = coordInt[2] - 1; nx <= coordInt[2] + 1; nx++)
+                                for (int nz = coordInt[1] - 1; nz <= coordInt[1] + 1; nz++)
                                 {
-                                    coordString = MakeCoordString3D(nz, ny, nx);
-                                    if (coordString == MakeCoordString3D(z, y, x)) continue;
-                                    else
+                                    for (int ny = coordInt[2] - 1; ny <= coordInt[2] + 1; ny++)
                                     {
-                                        if (currentState.Contains(coordString)) activeNeighborCount++;
+                                        for (int nx = coordInt[3] - 1; nx <= coordInt[3] + 1; nx++)
+                                        {
+                                            coordString = MakeCoordString4D(nw, nz, ny, nx);
+                                            if (coordString == MakeCoordString4D(w, z, y, x)) continue;
+                                            else
+                                            {
+                                                if (currentState.Contains(coordString)) activeNeighborCount++;
+                                            }
+                                        }
                                     }
                                 }
                             }
+                            if (activeNeighborCount == 3) nextState.Add(MakeCoordString4D(w, z, y, x));
                         }
-                        if (activeNeighborCount == 3) nextState.Add(MakeCoordString3D(z, y, x));
                     }
                 }
             }
             return nextState;
         }
-        */
 
         public static void Part2()
         {
@@ -339,17 +352,17 @@ namespace AdventOfCode2020
                     y--;
                 }
             }
-            Print3D(activeCubes);
-            /*
+            Print4D(activeCubes);
+            
             for (int i = 1; i <= 6; i++)
             {
                 Console.WriteLine("After {0} cycles:", i);
                 activeCubes = RunCycle4D(activeCubes);
-                Print3D(activeCubes);
+                Print4D(activeCubes);
 
             }
             Console.WriteLine("Active Cubes: {0}", activeCubes.Distinct().ToList().Count);
-            */
+            
 
             Console.ReadKey();
         }
